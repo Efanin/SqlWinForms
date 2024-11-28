@@ -1,4 +1,6 @@
 using System.Data.SqlClient;
+using static System.Runtime.InteropServices.JavaScript.JSType;
+using static System.Windows.Forms.VisualStyles.VisualStyleElement.ListView;
 namespace WinFormsApp15
 {
     public partial class Form1 : Form
@@ -22,6 +24,8 @@ namespace WinFormsApp15
         }
         private void table1()
         {
+            items.Clear();
+            comboBox1.Items.Clear();
             SqlCommand command = new(
                 "select * from details",
                 connection
@@ -46,6 +50,8 @@ namespace WinFormsApp15
 
         private void table2()
         {
+            itemscust.Clear();
+            comboBox3.Items.Clear();
             SqlCommand command = new(
                 "select * from customers",
                 connection
@@ -72,25 +78,29 @@ namespace WinFormsApp15
             string namefio;
             string detail;
             int total;
-            int price;
-            string date;
+            string date = monthCalendar1.SelectionStart.ToShortDateString();
             if (comboBox3.SelectedIndex == -1)
                 namefio = newNameFio(comboBox3.Text);
             else
                 namefio = itemscust[comboBox3.SelectedIndex].name;
             if (comboBox1.SelectedIndex == -1)
             {
-                detail = newDetail(comboBox1.Text, out price);
-                total = int.Parse(comboBox2.Text) * price;
+                detail = newDetail(namefio, comboBox1.Text, comboBox2.Text, date);
+                return;
             }
             else
             {
                 detail = items[comboBox1.SelectedIndex].name;
                 total = int.Parse(comboBox2.Text) * items[comboBox1.SelectedIndex].price;
             }    
-            date = monthCalendar1.SelectionStart.ToShortDateString();
+            
+            newSales(namefio, detail, total, date);
+        }
+
+        private void newSales(string namefio, string detail, int total, string date)
+        {
             label1.Text = namefio + " | " + detail +
-                " " + total.ToString() + "póá.  " + date;
+               " " + total.ToString() + "póá.  " + date;
         }
 
         private string newNameFio(string name)
@@ -99,12 +109,17 @@ namespace WinFormsApp15
             formNewNameFio.Show();
             return name;
         }
-        private string newDetail(string name, out int price)
+        private string newDetail(string namefio, string name,string count,string date)
         {
-            FormNewDetail formNewDetail = new(name,this);
+            FormNewDetail formNewDetail = new(namefio,name, count, date, this);
             formNewDetail.Show();
-            price = 0;
+            
             return name;
+        }
+        public void Sales(string namefio, string detail, int price, string count, string date)
+        {
+            int total = int.Parse(count) * price;
+            newSales(namefio, detail, total, date);
         }
         private void label4_Click(object sender, EventArgs e)
         {
@@ -112,23 +127,34 @@ namespace WinFormsApp15
         }
         public void addNewNameFio(string nameFio)
         {
-            SqlCommand command = new(
-                $"insert into [customers] (name) values (N'{nameFio}')",
-                connection
-                );
-            command.ExecuteNonQuery();
-            itemscust.Clear();
-            table2();
+            try
+            {
+                SqlCommand command = new(
+                    $"insert into [customers] (name) values (@name)",//{nameFio}
+                    connection
+                    );
+                command.Parameters.AddWithValue("name", nameFio);
+                command.ExecuteNonQuery();
+
+                table2();
+            }
+            catch (Exception ex) { };
         }
         public void addNewDetail(string detail, int price)
         {
-            SqlCommand command = new(
-               $"insert into [detail] (name,price) values (N'{detail}','{price}')",
-               connection
-               );
-            command.ExecuteNonQuery();
-            items.Clear();
-            table1();
+            try
+            {
+                SqlCommand command = new(
+                   $"insert into [details] (name,price) values (@name,@price)",//{detail}','{price}'
+                   connection
+                   );
+                command.Parameters.AddWithValue("name", detail);
+                command.Parameters.AddWithValue("price", price);
+                command.ExecuteNonQuery();
+
+                table1();
+            }
+            catch (Exception ex) { };
         }
     }
     public class Item(int id,string name, int price = 0)

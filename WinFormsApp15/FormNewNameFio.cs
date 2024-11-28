@@ -19,6 +19,7 @@ namespace WinFormsApp15
             InitializeComponent();
             this.nameFio = nameFio;
             this.form1 = form1;
+            label1.Text = nameFio;
         }
 
         private void FormNewNameFio_Load(object sender, EventArgs e)
