@@ -15,7 +15,6 @@ namespace WinFormsApp15
             items = new();
             itemscust = new();
         }
-
         private void Form1_Load(object sender, EventArgs e)
         {
             connection.Open();
