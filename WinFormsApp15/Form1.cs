@@ -11,7 +11,7 @@ namespace WinFormsApp15
         public Form1()
         {
             InitializeComponent();
-            connection = new("Data Source=(LocalDB)\\MSSQLLocalDB;AttachDbFilename=C:\\Users\\user\\source\\repos\\WinFormsApp15\\WinFormsApp15\\Database1.mdf;Integrated Security=True");
+            connection = new("Data Source=(LocalDB)\\MSSQLLocalDB;AttachDbFilename=C:\\Users\\user\\Source\\Repos\\SqlWinForms12\\WinFormsApp15\\Database1.mdf;Integrated Security=True");
             items = new();
             itemscust = new();
         }
@@ -78,10 +78,32 @@ namespace WinFormsApp15
             string detail;
             int total;
             string date = monthCalendar1.SelectionStart.ToShortDateString();
+
+            for (int i = itemscust.Count - 1; i >= 0; i--)
+            {
+                if (itemscust[i].name == comboBox3.Text)
+                {
+                    comboBox3.SelectedIndex = i;
+                    break;
+                }
+            }
+            for (int i = items.Count - 1; i >= 0; i--)
+            {
+                if (items[i].name == comboBox1.Text)
+                {
+                    comboBox1.SelectedIndex = i;
+                    break;
+                }
+            }
             if (comboBox3.SelectedIndex == -1)
+            {
+
                 namefio = newNameFio(comboBox3.Text);
+            }
             else
+            {
                 namefio = itemscust[comboBox3.SelectedIndex].name;
+            }
             if (comboBox1.SelectedIndex == -1)
             {
                 detail = newDetail(namefio, comboBox1.Text, comboBox2.Text, date);
@@ -91,8 +113,8 @@ namespace WinFormsApp15
             {
                 detail = items[comboBox1.SelectedIndex].name;
                 total = int.Parse(comboBox2.Text) * items[comboBox1.SelectedIndex].price;
-            }    
-            
+            }
+
             newSales(namefio, detail, total, date);
         }
 
@@ -100,19 +122,28 @@ namespace WinFormsApp15
         {
             label1.Text = namefio + " | " + detail +
                " " + total.ToString() + "póá.  " + date;
+            SqlCommand command = new(
+                "insert into [Sales] (fio,detail,price,date) values (@fio,@detail,@price,@date)",
+                connection
+                );
+            command.Parameters.AddWithValue("fio", namefio);
+            command.Parameters.AddWithValue("detail", detail);
+            command.Parameters.AddWithValue("price", total);
+            command.Parameters.AddWithValue("date", date);
+            command.ExecuteNonQuery();
         }
 
         private string newNameFio(string name)
         {
-            FormNewNameFio formNewNameFio = new(name,this);
+            FormNewNameFio formNewNameFio = new(name, this);
             formNewNameFio.Show();
             return name;
         }
-        private string newDetail(string namefio, string name,string count,string date)
+        private string newDetail(string namefio, string name, string count, string date)
         {
-            FormNewDetail formNewDetail = new(namefio,name, count, date, this);
+            FormNewDetail formNewDetail = new(namefio, name, count, date, this);
             formNewDetail.Show();
-            
+
             return name;
         }
         public void Sales(string namefio, string detail, int price, string count, string date)
@@ -154,6 +185,12 @@ namespace WinFormsApp15
                 table1();
             }
             catch (Exception ex) { };
+        }
+
+        private void button2_Click(object sender, EventArgs e)
+        {
+            FormSales formSales = new(connection);
+            formSales.Show();
         }
     }
     public class Item(int id,string name, int price = 0)

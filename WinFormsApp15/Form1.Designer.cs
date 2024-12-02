@@ -39,6 +39,7 @@
             label4 = new Label();
             label5 = new Label();
             label6 = new Label();
+            button2 = new Button();
             SuspendLayout();
             // 
             // comboBox1
@@ -144,11 +145,22 @@
             label6.TabIndex = 11;
             label6.Text = "Новая продажа";
             // 
+            // button2
+            // 
+            button2.Location = new Point(311, 121);
+            button2.Name = "button2";
+            button2.Size = new Size(75, 23);
+            button2.TabIndex = 12;
+            button2.Text = "Просмотр";
+            button2.UseVisualStyleBackColor = true;
+            button2.Click += button2_Click;
+            // 
             // Form1
             // 
             AutoScaleDimensions = new SizeF(7F, 15F);
             AutoScaleMode = AutoScaleMode.Font;
             ClientSize = new Size(847, 353);
+            Controls.Add(button2);
             Controls.Add(label6);
             Controls.Add(label5);
             Controls.Add(label4);
@@ -179,5 +191,6 @@
         private Label label4;
         private Label label5;
         private Label label6;
+        private Button button2;
     }
 }
